@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-fedora-golden-image
+  namespace: vm-infra-pipelines
+spec:
+  params:
+    - name: image_name
+      default: "quay.io/knav3/fedora-golden:latest"
+  steps:
+    - name: virt-builder
+      image: quay.io/containerdisks/virt-utils
+      script: |
+        # Customize Fedora: install httpd, enable it, create user, add HTML
+        virt-builder fedora-39 \
+          --output /workspace/fedora.qcow2 \
+          --install httpd \
+          --run-command "systemctl enable httpd" \
+          --run-command "echo 'Welcome to OpenShift Virtualization, this is the Fedora Golden Image.' > /var/www/html/index.html" \
+          --run-command "useradd -m dirk" \
+          --password dirk:password:redhatocp \
+          --selinux-relabel
+
+        # Package as a ContainerDisk and push to Quay
+        echo "FROM scratch" > Dockerfile
+        echo "ADD fedora.qcow2 /disk/" >> Dockerfile
+        buildah bud -t $(params.image_name) .
+        buildah push $(params.image_name)

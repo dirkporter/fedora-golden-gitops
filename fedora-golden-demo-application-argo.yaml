@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fedora-golden-demo
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dirkporter/fedora-golden-gitops
+    targetRevision: HEAD
+    path: vms/
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: fedora-web-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,59 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: fedora-webserver
+  labels:
+    app: fedora-webserver
+spec:
+  running: true
+  template:
+    spec:
+      domain:
+        devices:
+          disks:
+            - disk: {bus: virtio}
+              name: rootdisk
+        resources:
+          requests:
+            memory: 2Gi
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: fedora-web-root
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: fedora-web-root
+spec:
+  sourceRef:
+    kind: DataSource
+    name: fedora-golden-datasource
+    namespace: openshift-virtualization-os-images
+  storage:
+    resources:
+      requests:
+        storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fedora-web-svc
+spec:
+  selector:
+    kubevirt.io/domain: fedora-webserver
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: fedora-web-route
+spec:
+  to:
+    kind: Service
+    name: fedora-web-svc
+  port:
+    targetPort: 80

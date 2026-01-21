@@ -1,0 +1,17 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataImportCron
+metadata:
+  name: fedora-golden-import
+  namespace: openshift-virtualization-os-images
+spec:
+  template:
+    spec:
+      source:
+        registry:
+          url: "docker://quay.io/<YOUR_QUAY_USER>/fedora-golden:latest"
+      storage:
+        resources:
+          requests:
+            storage: 20Gi
+  schedule: "*/5 * * * *" 
+  managedDataSource: fedora-golden-datasource

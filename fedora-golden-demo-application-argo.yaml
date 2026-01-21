@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/dirkporter/fedora-golden-gitops.git
     targetRevision: HEAD
-    path: fedora-golden-gitops/vms
+    path: /vms 
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: fedora-web-prod

@@ -3,35 +3,33 @@ kind: VirtualMachine
 metadata:
   name: fedora-webserver
   namespace: fedora-web-prod
-  labels:
-    app: fedora-webserver
 spec:
   running: true
   template:
     spec:
       domain:
         cpu:
-          cores: 2      # Sets your 2 CPU cores correctly
+          cores: 2
           sockets: 1
           threads: 1
         resources:
           requests:
-            memory: 4Gi # Sets your 4Gi Memory
+            memory: 4Gi
         machine:
-          type: pc-q35-rhel9.4.0 # Matches the original hardware type
+          type: pc-q35-rhel9.4.0 # Matches your original working hardware
         firmware:
           bootloader:
-            efi: {}     # Fixes the HBA boot hang
+            efi: {}             # Required to read Fedora's GPT partition
         features:
-          acpi: {}      # Required for power management
-          smm:          # Required for EFI to function
-            enabled: true
+          acpi: {}
+          smm:
+            enabled: true       # REQUIRED for EFI to initialize the disk
         devices:
           disks:
-            - disk: {bus: virtio}
+            - disk:
+                bus: virtio     # Standard high-performance driver
               name: rootdisk
-            - disk: {bus: virtio}
-              name: cloudinitdisk
+              bootOrder: 1      # Forces the HBA to look at this disk first
           interfaces:
             - masquerade: {}
               name: default
@@ -42,15 +40,6 @@ spec:
         - name: rootdisk
           dataVolume:
             name: fedora-web-root
-        - name: cloudinitdisk
-          cloudInitNoCloud:
-            userData: |
-              #cloud-config
-              user: dirk
-              password: redhatocp
-              chpasswd: { expire: false }
-              runcmd:
-                - [ systemctl, enable, --now, httpd ]
 ---
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume

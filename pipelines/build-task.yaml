@@ -11,7 +11,7 @@ spec:
     - name: shared-data
   steps:
     - name: virt-builder
-      image: registry.redhat.io/container-native-virtualization/virt-utils-rhel9:v4.17.0
+      image: registry.redhat.io/container-native-virtualization/virt-handler-rhel9@sha256:5eb33ea9318f3694f1a38d3be25ade67eb05c8932293ad78d85b772219724234
       script: |
         # Customize Fedora: install httpd, enable it, create user, add HTML
         virt-builder fedora-39 \

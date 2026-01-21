@@ -2,6 +2,7 @@ apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
   name: fedora-webserver
+  namespace: fedora-web-prod
   labels:
     app: fedora-webserver
 spec:
@@ -9,18 +10,47 @@ spec:
   template:
     spec:
       domain:
+        cpu:
+          cores: 2      # Sets your 2 CPU cores correctly
+          sockets: 1
+          threads: 1
+        resources:
+          requests:
+            memory: 4Gi # Sets your 4Gi Memory
+        machine:
+          type: pc-q35-rhel9.4.0 # Matches the original hardware type
+        firmware:
+          bootloader:
+            efi: {}     # Fixes the HBA boot hang
+        features:
+          acpi: {}      # Required for power management
+          smm:          # Required for EFI to function
+            enabled: true
         devices:
           disks:
             - disk: {bus: virtio}
               name: rootdisk
-        resources:
-          requests:
-            memory: 4Gi
-            cpu: "2"
+            - disk: {bus: virtio}
+              name: cloudinitdisk
+          interfaces:
+            - masquerade: {}
+              name: default
+      networks:
+        - name: default
+          pod: {}
       volumes:
         - name: rootdisk
           dataVolume:
             name: fedora-web-root
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: dirk
+              password: redhatocp
+              chpasswd: { expire: false }
+              runcmd:
+                - [ systemctl, enable, --now, httpd ]
 ---
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume

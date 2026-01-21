@@ -26,10 +26,9 @@ kind: DataVolume
 metadata:
   name: fedora-web-root
 spec:
-  sourceRef:
-    kind: DataSource
-    name: fedora-golden-datasource
-    namespace: openshift-virtualization-os-images
+  source:
+    registry:
+      url: "docker://quay.io/knav3/fedora-golden:latest"
   storage:
     resources:
       requests:

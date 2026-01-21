@@ -9,7 +9,7 @@ spec:
       default: "quay.io/knav3/fedora-golden:latest"
   steps:
     - name: virt-builder
-      image: quay.io/containerdisks/virt-utils
+      image: quay.io/containerdisks/virt-utils:v0.1.0
       script: |
         # Customize Fedora: install httpd, enable it, create user, add HTML
         virt-builder fedora-39 \

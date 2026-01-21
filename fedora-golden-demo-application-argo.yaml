@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/dirkporter/fedora-golden-gitops
+    repoURL: https://github.com/dirkporter/fedora-golden-gitops.git
     targetRevision: HEAD
-    path: vms/
+    path: fedora-golden-gitops/vms
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: fedora-web-prod

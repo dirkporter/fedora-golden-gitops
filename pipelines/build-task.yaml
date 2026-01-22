@@ -11,20 +11,27 @@ spec:
     - name: shared-data
   steps:
     - name: virt-builder
-      image: registry.redhat.io/container-native-virtualization/virt-handler-rhel9@sha256:5eb33ea9318f3694f1a38d3be25ade67eb05c8932293ad78d85b772219724234
+      image: quay.io/kubevirt/virt-utils@sha256:07455e905333f207038167f4019448d1c95107e155460596e16f809930f3c552
+      securityContext:
+        privileged: true
       script: |
-        # Customize Fedora: install httpd, enable it, create user, add HTML
+        #!/usr/bin/env bash
+        set -e
+        
+        # Move to the workspace
+        cd $(workspaces.shared-data.path)
+
+        # Build the image
         virt-builder fedora-39 \
-          --output /workspace/fedora.qcow2 \
+          --output fedora.qcow2 \
           --install httpd \
           --run-command "systemctl enable httpd" \
-          --run-command "echo 'Welcome to OpenShift Virtualization, this is the Fedora Golden Image.' > /var/www/html/index.html" \
           --run-command "useradd -m dirk" \
           --password dirk:password:redhatocp \
           --selinux-relabel
 
-        # Package as a ContainerDisk and push to Quay
+        # Buildah push
         echo "FROM scratch" > Dockerfile
         echo "ADD fedora.qcow2 /disk/" >> Dockerfile
-        buildah bud -t $(params.image_name) .
-        buildah push $(params.image_name)
+        buildah --storage-driver=vfs bud -t $(params.image_name) .
+        buildah --storage-driver=vfs push $(params.image_name)

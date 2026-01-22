@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  generateName: build-fedora-golden-image-run-
+spec:
+  taskRef:
+    name: build-fedora-golden-image
+  serviceAccountName: pipeline
+  podTemplate:
+    imagePullSecrets:
+    - name: pull-secret
+  params:
+  - name: image_name
+    value: quay.io/knav3/fedora-golden:latest
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 20Gi

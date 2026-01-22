@@ -8,6 +8,13 @@ spec:
   template:
     spec:
       domain:
+        resources:
+          requests:
+            memory: 4Gi
+            cpu: 2
+          limits:
+            memory: 8Gi 
+            cpu: 4 
         machine:
           type: pc-q35-rhel9.4.0
         firmware:

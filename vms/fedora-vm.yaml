@@ -8,28 +8,20 @@ spec:
   template:
     spec:
       domain:
-        cpu:
-          cores: 2
-          sockets: 1
-          threads: 1
-        resources:
-          requests:
-            memory: 4Gi
         machine:
-          type: pc-q35-rhel9.4.0 # Matches your original working hardware
+          type: pc-q35-rhel9.4.0
         firmware:
           bootloader:
-            efi: {}             # Required to read Fedora's GPT partition
+            efi: {}
         features:
-          acpi: {}
           smm:
-            enabled: true       # REQUIRED for EFI to initialize the disk
+            enabled: true
         devices:
           disks:
-            - disk:
-                bus: virtio     # Standard high-performance driver
+            - disk: {bus: virtio}
               name: rootdisk
-              bootOrder: 1      # Forces the HBA to look at this disk first
+            - disk: {bus: virtio}
+              name: cloudinitdisk # Added for cloud-init
           interfaces:
             - masquerade: {}
               name: default
@@ -38,8 +30,29 @@ spec:
           pod: {}
       volumes:
         - name: rootdisk
-          dataVolume:
-            name: fedora-web-root
+          containerDisk:
+            image: quay.io/knav3/fedora-golden:latest # Your new image
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: dirk
+              password: password:redhatocp
+              chpasswd: { expire: False }
+              sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
+              packages:
+                - httpd
+              write_files:
+                - content: |
+                    <html>
+                    <body>
+                      <h1>You are now viewing Dirk's Golden Image</h1>
+                      <p>Hosted on <strong>OpenShift Virtualization</strong> via Cloud-Init</p>
+                    </body>
+                    </html>
+                  path: /var/www/html/index.html
+              runcmd:
+                - [ systemctl, enable, --now, httpd ]
 ---
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
@@ -70,9 +83,13 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: fedora-web-route
+  namespace: fedora-web-prod
 spec:
   to:
     kind: Service
     name: fedora-web-svc
   port:
     targetPort: 80
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

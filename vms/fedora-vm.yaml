@@ -38,7 +38,7 @@ spec:
       volumes:
         - name: rootdisk
           containerDisk:
-            image: quay.io/knav3/fedora-golden:latest # Your new image
+            image: quay.io/knav3/fedora-golden:cloud-v1 # Your new image
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |

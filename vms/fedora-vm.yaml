@@ -18,8 +18,8 @@ spec:
             memory: 4Gi
             cpu: 2
           limits:
-            memory: 8Gi 
-            cpu: 4 
+            memory: 4Gi 
+            cpu: 2 
         machine:
           type: pc-q35-rhel9.4.0
         firmware:

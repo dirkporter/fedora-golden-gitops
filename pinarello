@@ -1,0 +1,24 @@
+{
+  "name": "Pinarello X5 2024 - 51.5",
+  "units": "mm",
+  "frame": {
+    "stack": 564.4,
+    "reach": 368.5,
+    "headTubeAngle": 71.5,
+    "seatTubeAngle": 73.75,
+    "headTubeLength": 149,
+    "chainstayLength": 422,
+    "bbDrop": 72,
+    "forkRake": 47,
+    "wheelbase": 1004,
+    "topTubeLength": 536,
+    "seatTubeLength": 495
+  },
+  "components": {
+    "wheelSize": 700,
+    "tireWidth": 35,
+    "crankLength": 170,
+    "stemLength": 100,
+    "stemAngle": -6
+  }
+}
